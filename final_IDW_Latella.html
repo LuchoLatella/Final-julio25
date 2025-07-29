@@ -61,7 +61,7 @@
   </form>
 
 
-  
+
     <h2>Grilla de largada</h2>
   <table id="tablaClasificaciones">
     <thead>
@@ -74,6 +74,61 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Aquí se cargan los datos -->
+      <!-- cargar los datos -->
     </tbody>
   </table>
+
+    <script>
+    const form = document.getElementById('formClasificacion');
+    const tablaBody = document.querySelector('#tablaClasificaciones tbody');
+    const STORAGE_KEY = 'clasificaciones';
+
+    // Cargar y ordenar datos LocalStorage
+    function cargarClasificaciones() {
+      let datos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      // Ordenar por tiempo ascendente
+      datos.sort((a, b) => a.tiempo - b.tiempo);
+      return datos;
+    }
+
+    // Mostrar tabla 
+    function mostrarTabla() {
+      const datos = cargarClasificaciones();
+      tablaBody.innerHTML = '';
+      datos.forEach((item, index) => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.numeroVehiculo}</td>
+          <td>${item.nombre}</td>
+          <td>${item.apellido}</td>
+          <td>${item.tiempo}</td>
+        `;
+        tablaBody.appendChild(fila);
+      });
+    }
+
+    // Guardar nuevo registro en LocalStorage
+    function guardarClasificacion(nuevoRegistro) {
+      const datos = cargarClasificaciones();
+      datos.push(nuevoRegistro);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+    }
+
+    // Evento submit del formulario
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nuevoRegistro = {
+        numeroVehiculo: parseInt(document.getElementById('numeroVehiculo').value),
+        nombre: document.getElementById('nombre').value.trim(),
+        apellido: document.getElementById('apellido').value.trim(),
+        tiempo: parseInt(document.getElementById('tiempo').value),
+      };
+
+      guardarClasificacion(nuevoRegistro);
+      mostrarTabla();
+
+      form.reset();
+      document.getElementById('numeroVehiculo').focus();
+    });
